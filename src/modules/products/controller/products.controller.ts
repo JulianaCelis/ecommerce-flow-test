@@ -15,10 +15,31 @@ export class ProductsController {
     return this.productsService.findById(Number(id));
   }
 
+  @Post()
+  create(
+    @Body()
+    body: {
+      name: string;
+      description: string;
+      price: number;
+      image_url: string;
+      stock: number;
+    },
+  ) {
+    return this.productsService.create(body);
+  }
+
   @Put('update-by-id/:id')
   update(
     @Param('id') id: string,
-    @Body() body: { name?: string; description?: string; price?: number; image_url?: string },
+    @Body()
+    body: {
+      name?: string;
+      description?: string;
+      price?: number;
+      image_url?: string;
+      stock?: number;
+    },
   ) {
     return this.productsService.update(Number(id), body);
   }
