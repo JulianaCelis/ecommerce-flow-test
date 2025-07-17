@@ -1,3 +1,4 @@
+// src/modules/products/ports/in/products.controller.ts - CORREGIDO
 import { Body, Controller, Delete, Get, Param, Post, Put, HttpStatus, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { ProductsService } from '../../application/products.service';
@@ -10,26 +11,28 @@ export class ProductsController {
   async findAll(@Res() res: Response) {
     const result = await this.productsService.findAll();
     
-    if (!result.success) {
+    // Corregido: usar isSuccess() en lugar de .success
+    if (result.isFailure()) {
       return res.status(HttpStatus.NOT_FOUND).json({ 
         error: result.error 
       });
     }
     
-    return res.status(HttpStatus.OK).json(result.data);
+    return res.status(HttpStatus.OK).json(result.value); // Corregido: .value en lugar de .data
   }
 
   @Get('get-by-id/:id')
   async findById(@Param('id') id: string, @Res() res: Response) {
     const result = await this.productsService.findById(Number(id));
     
-    if (!result.success) {
+    // Corregido: usar isFailure() en lugar de !result.success
+    if (result.isFailure()) {
       return res.status(HttpStatus.NOT_FOUND).json({ 
         error: result.error 
       });
     }
     
-    return res.status(HttpStatus.OK).json(result.data);
+    return res.status(HttpStatus.OK).json(result.value); // Corregido: .value en lugar de .data
   }
 
   @Post()
@@ -46,13 +49,13 @@ export class ProductsController {
   ) {
     const result = await this.productsService.create(body);
     
-    if (!result.success) {
+    if (result.isFailure()) {
       return res.status(HttpStatus.BAD_REQUEST).json({ 
         error: result.error 
       });
     }
     
-    return res.status(HttpStatus.CREATED).json(result.data);
+    return res.status(HttpStatus.CREATED).json(result.value);
   }
 
   @Put('update-by-id/:id')
@@ -70,20 +73,20 @@ export class ProductsController {
   ) {
     const result = await this.productsService.update(Number(id), body);
     
-    if (!result.success) {
+    if (result.isFailure()) {
       return res.status(HttpStatus.BAD_REQUEST).json({ 
         error: result.error 
       });
     }
     
-    return res.status(HttpStatus.OK).json(result.data);
+    return res.status(HttpStatus.OK).json(result.value);
   }
 
   @Delete('delete-by-id/:id')
   async delete(@Param('id') id: string, @Res() res: Response) {
     const result = await this.productsService.delete(Number(id));
     
-    if (!result.success) {
+    if (result.isFailure()) {
       return res.status(HttpStatus.NOT_FOUND).json({ 
         error: result.error 
       });
