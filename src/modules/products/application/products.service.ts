@@ -1,106 +1,115 @@
+// src/modules/products/application/products.service.ts - ACTUALIZADO
 import { Injectable } from '@nestjs/common';
-import { Products } from '../domain/products.entity';
-import { ProductRepository } from '../ports/out/products.repository';
-import { Result } from '../../../shared/types/result.type'; // Ajusta la ruta según tu estructura
+import { PrismaService } from '../../../core/prisma/prisma.service';
+import { Result, success, failure } from '../../../shared/types/result.type';
+import { AppError, ErrorCode } from '../../../shared/types/app-error.type';
 
 @Injectable()
 export class ProductsService {
-  constructor(private readonly productsRepo: ProductRepository) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: Omit<Products, 'id'>): Promise<Result<Products, string>> {
+  async findAll(): Promise<Result<any[], AppError>> {
     try {
-      if (!data.name || !data.price) {
-        return { success: false, error: 'Name and price are required' };
-      }
-
-      if (data.price <= 0) {
-        return { success: false, error: 'Price must be greater than 0' };
-      }
-
-      if (data.stock < 0) {
-        return { success: false, error: 'Stock cannot be negative' };
-      }
-
-      const product = await this.productsRepo.create(data);
-      return { success: true, data: product };
+      const products = await this.prisma.product.findMany({ // ← PRODUCT (singular)
+        orderBy: { createdAt: 'desc' }
+      });
+      return success(products);
     } catch (error) {
-      return { success: false, error: 'Failed to create product' };
+      return failure(new AppError(ErrorCode.INTERNAL_ERROR, 'Failed to fetch products', error));
     }
   }
 
-  async findAll(): Promise<Result<Products[], string>> {
+  async findById(id: number): Promise<Result<any, AppError>> {
     try {
-      const products = await this.productsRepo.findAll();
-      
-      if (!products || products.length === 0) {
-        return { success: false, error: 'No products found' };
-      }
-      
-      return { success: true, data: products };
-    } catch (error) {
-      return { success: false, error: 'Failed to fetch products' };
-    }
-  }
-
-  async findById(id: number): Promise<Result<Products, string>> {
-    try {
-      if (!id || id <= 0) {
-        return { success: false, error: 'Invalid product ID' };
-      }
-
-      const product = await this.productsRepo.findById(id);
+      const product = await this.prisma.product.findUnique({ // ← PRODUCT (singular)
+        where: { id: id.toString() } // Asumiendo que tu ID es string en Prisma
+      });
       
       if (!product) {
-        return { success: false, error: `Product with ID ${id} not found` };
+        return failure(new AppError(ErrorCode.NOT_FOUND, 'Product not found'));
       }
       
-      return { success: true, data: product };
+      return success(product);
     } catch (error) {
-      return { success: false, error: 'Failed to fetch product' };
+      return failure(new AppError(ErrorCode.INTERNAL_ERROR, 'Failed to fetch product', error));
     }
   }
 
-  async update(id: number, data: Partial<Products>): Promise<Result<Products, string>> {
+  async create(data: {
+    name: string;
+    description: string;
+    price: number;
+    image_url: string;
+    stock: number;
+  }): Promise<Result<any, AppError>> {
     try {
-      if (!id || id <= 0) {
-        return { success: false, error: 'Invalid product ID' };
-      }
-
-      if (data.price !== undefined && data.price <= 0) {
-        return { success: false, error: 'Price must be greater than 0' };
-      }
-
-      if (data.stock !== undefined && data.stock < 0) {
-        return { success: false, error: 'Stock cannot be negative' };
-      }
-
-      const existingProduct = await this.productsRepo.findById(id);
-      if (!existingProduct) {
-        return { success: false, error: `Product with ID ${id} not found` };
-      }
-
-      const updatedProduct = await this.productsRepo.update(id, data);
-      return { success: true, data: updatedProduct };
+      const product = await this.prisma.product.create({ // ← PRODUCT (singular)
+        data: {
+          name: data.name,
+          description: data.description,
+          price: data.price,
+          imageUrl: data.image_url, // Mapear image_url a imageUrl
+          stock: data.stock
+        }
+      });
+      return success(product);
     } catch (error) {
-      return { success: false, error: 'Failed to update product' };
+      return failure(new AppError(ErrorCode.INTERNAL_ERROR, 'Failed to create product', error));
     }
   }
 
-  async delete(id: number): Promise<Result<boolean, string>> {
+  async update(id: number, data: {
+    name?: string;
+    description?: string;
+    price?: number;
+    image_url?: string;
+    stock?: number;
+  }): Promise<Result<any, AppError>> {
     try {
-      if (!id || id <= 0) {
-        return { success: false, error: 'Invalid product ID' };
-      }
+      // Verificar si el producto existe
+      const existingProduct = await this.prisma.product.findUnique({ // ← PRODUCT (singular)
+        where: { id: id.toString() }
+      });
 
-      const existingProduct = await this.productsRepo.findById(id);
       if (!existingProduct) {
-        return { success: false, error: `Product with ID ${id} not found` };
+        return failure(new AppError(ErrorCode.NOT_FOUND, 'Product not found'));
       }
 
-      await this.productsRepo.delete(id);
-      return { success: true, data: true };
+      const product = await this.prisma.product.update({ // ← PRODUCT (singular)
+        where: { id: id.toString() },
+        data: {
+          ...(data.name && { name: data.name }),
+          ...(data.description && { description: data.description }),
+          ...(data.price && { price: data.price }),
+          ...(data.image_url && { imageUrl: data.image_url }),
+          ...(data.stock !== undefined && { stock: data.stock })
+        }
+      });
+      
+      return success(product);
     } catch (error) {
-      return { success: false, error: 'Failed to delete product' };
+      return failure(new AppError(ErrorCode.INTERNAL_ERROR, 'Failed to update product', error));
+    }
+  }
+
+  async delete(id: number): Promise<Result<void, AppError>> {
+    try {
+      // Verificar si el producto existe
+      const existingProduct = await this.prisma.product.findUnique({ // ← PRODUCT (singular)
+        where: { id: id.toString() }
+      });
+
+      if (!existingProduct) {
+        return failure(new AppError(ErrorCode.NOT_FOUND, 'Product not found'));
+      }
+
+      await this.prisma.product.delete({ // ← PRODUCT (singular)
+        where: { id: id.toString() }
+      });
+      
+      return success(undefined);
+    } catch (error) {
+      return failure(new AppError(ErrorCode.INTERNAL_ERROR, 'Failed to delete product', error));
     }
   }
 }

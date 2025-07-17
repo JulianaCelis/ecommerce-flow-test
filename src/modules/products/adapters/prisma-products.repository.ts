@@ -1,71 +1,113 @@
+// src/modules/products/adapters/prisma-products.repository.ts - CORREGIDO
 import { Injectable } from '@nestjs/common';
-import { Products } from '../domain/products.entity';
-import { ProductRepository } from '../ports/out/products.repository';
-import { PrismaService } from 'src/core/prisma/prisma.service';
-
+import { PrismaService } from '../../../core/prisma/prisma.service';
+import { Result, success, failure } from '../../../shared/types/result.type';
+import { AppError, ErrorCode } from '../../../shared/types/app-error.type';
 
 @Injectable()
-export class PrismaProductRepository implements ProductRepository {
+export class PrismaProductsRepository {
   constructor(private readonly prisma: PrismaService) {}
-  
 
-  async create(data: any): Promise<Products> {
-    const created = await this.prisma.products.create({ data });
-    return new Products(
-      created.id,
-      created.name,
-      created.description,
-      created.price,
-      created.image_url,
-      created.stock,
-      created.created_at,
-    );
+  async findAll(): Promise<Result<any[], AppError>> {
+    try {
+      const products = await this.prisma.product.findMany({ // ← PRODUCT (singular)
+        orderBy: { createdAt: 'desc' }
+      });
+      return success(products);
+    } catch (error) {
+      return failure(new AppError(ErrorCode.INTERNAL_ERROR, 'Failed to fetch products', error));
+    }
   }
 
-  async findAll(): Promise<Products[]> {
-    const all = await this.prisma.products.findMany();
-    return all.map(p => new Products(
-      p.id,
-      p.name,
-      p.description,
-      p.price,
-      p.image_url,
-      p.stock,
-      p.created_at,
-    ));
+  async findById(id: string): Promise<Result<any, AppError>> {
+    try {
+      const product = await this.prisma.product.findUnique({ // ← PRODUCT (singular)
+        where: { id }
+      });
+      
+      if (!product) {
+        return failure(new AppError(ErrorCode.NOT_FOUND, 'Product not found'));
+      }
+      
+      return success(product);
+    } catch (error) {
+      return failure(new AppError(ErrorCode.INTERNAL_ERROR, 'Failed to fetch product', error));
+    }
   }
 
-  async findById(id: number): Promise<Products | null> {
-    const found = await this.prisma.products.findUnique({ where: { id } });
-    return found
-      ? new Products(
-          found.id,
-          found.name,
-          found.description,
-          found.price,
-          found.image_url,
-          found.stock,
-          found.created_at,
-        )
-      : null;
+  async create(data: {
+    name: string;
+    description: string;
+    price: number;
+    image_url: string;
+    stock: number;
+  }): Promise<Result<any, AppError>> {
+    try {
+      const product = await this.prisma.product.create({ // ← PRODUCT (singular)
+        data: {
+          name: data.name,
+          description: data.description,
+          price: data.price,
+          imageUrl: data.image_url,
+          stock: data.stock
+        }
+      });
+      return success(product);
+    } catch (error) {
+      return failure(new AppError(ErrorCode.INTERNAL_ERROR, 'Failed to create product', error));
+    }
   }
 
-  async update(id: number, data: any): Promise<Products> {
-    type Tipo = typeof updated;
-    const updated = await this.prisma.products.update({ where: { id }, data });
-    return new Products(
-      updated.id,
-      updated.name,
-      updated.description,
-      updated.price,
-      updated.image_url,
-      updated.stock,
-      updated.created_at,
-    );
+  async update(id: string, data: {
+    name?: string;
+    description?: string;
+    price?: number;
+    image_url?: string;
+    stock?: number;
+  }): Promise<Result<any, AppError>> {
+    try {
+      // Verificar si el producto existe
+      const existingProduct = await this.prisma.product.findUnique({ // ← PRODUCT (singular)
+        where: { id }
+      });
+
+      if (!existingProduct) {
+        return failure(new AppError(ErrorCode.NOT_FOUND, 'Product not found'));
+      }
+
+      const updated = await this.prisma.product.update({ // ← PRODUCT (singular)
+        where: { id }, 
+        data: {
+          ...(data.name && { name: data.name }),
+          ...(data.description && { description: data.description }),
+          ...(data.price && { price: data.price }),
+          ...(data.image_url && { imageUrl: data.image_url }),
+          ...(data.stock !== undefined && { stock: data.stock })
+        }
+      });
+      
+      return success(updated);
+    } catch (error) {
+      return failure(new AppError(ErrorCode.INTERNAL_ERROR, 'Failed to update product', error));
+    }
   }
 
-  async delete(id: number): Promise<void> {
-    await this.prisma.products.delete({ where: { id } });
+  async delete(id: string): Promise<Result<void, AppError>> {
+    try {
+      // Verificar si el producto existe
+      const existingProduct = await this.prisma.product.findUnique({ // ← PRODUCT (singular)
+        where: { id }
+      });
+
+      if (!existingProduct) {
+        return failure(new AppError(ErrorCode.NOT_FOUND, 'Product not found'));
+      }
+
+      await this.prisma.product.delete({ where: { id } }); // ← PRODUCT (singular)
+      
+      return success(undefined);
+    } catch (error) {
+      return failure(new AppError(ErrorCode.INTERNAL_ERROR, 'Failed to delete product', error));
+    }
   }
 }
-

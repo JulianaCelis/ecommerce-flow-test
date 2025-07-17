@@ -1,98 +1,301 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# E-commerce Flow Test
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Una aplicación de e-commerce construida con NestJS, Prisma y PostgreSQL siguiendo principios de **Arquitectura Hexagonal** y **Railway Oriented Programming (ROP)**.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🚀 Características
 
-## Description
+- ✅ **API REST** con NestJS
+- ✅ **Base de datos** PostgreSQL con Prisma ORM
+- ✅ **Arquitectura Hexagonal** (Ports & Adapters)
+- ✅ **Railway Oriented Programming** para manejo de errores
+- ✅ **Validación** de datos con class-validator
+- ✅ **Documentación** automática con Swagger
+- ✅ **Testing** configurado con Jest
+- ✅ **TypeScript** para type safety
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 📋 Módulos Implementados
 
-## Project setup
+### 🛍️ Products
+- Gestión completa de productos
+- Control de inventario/stock
+- CRUD operations
 
+### 👥 Customers  
+- Gestión de clientes
+- Validación de emails únicos
+- CRUD operations
+
+### 🔄 Orders (En desarrollo)
+- Proceso de compra
+- Integración con Wompi (Sandbox)
+- Gestión de transacciones
+
+## 🛠️ Stack Tecnológico
+
+- **Backend**: NestJS 11.x
+- **Base de datos**: PostgreSQL
+- **ORM**: Prisma 6.x
+- **Validación**: class-validator & class-transformer
+- **Documentación**: Swagger/OpenAPI
+- **Testing**: Jest
+- **Linting**: ESLint + Prettier
+
+## 📦 Instalación
+
+### Prerequisitos
+- Node.js 18+ 
+- PostgreSQL 12+
+- npm o yarn
+
+### 1. Clonar repositorio
 ```bash
-$ npm install
+git clone <repository-url>
+cd ecommerce-flow-test
 ```
 
-## Compile and run the project
-
+### 2. Instalar dependencias
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install
 ```
 
-## Run tests
-
+### 3. Configurar variables de entorno
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+# Crear archivo .env
+cp .env.example .env
 ```
 
-## Deployment
+Configurar las siguientes variables:
+```env
+# Database
+DATABASE_URL="postgresql://username:password@localhost:5432/ecommerce_db?schema=public"
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Wompi API (Sandbox)
+WOMPI_SANDBOX_URL="https://api-sandbox.co.uat.wompi.dev/v1"
+WOMPI_PUBLIC_KEY="pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7"
+WOMPI_PRIVATE_KEY="prv_stagtest_5i0ZGIGiFcDQifYsXxvsny7Y37tKqFWg"
+WOMPI_INTEGRITY_KEY="stagtest_integrity_nAIBuqayW70XpUqJS4qf4STYiISd89Fp"
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 4. Configurar base de datos
+```bash
+# Generar cliente de Prisma
+npx prisma generate
 
-## Resources
+# Ejecutar migraciones
+npx prisma migrate dev
 
-Check out a few resources that may come in handy when working with NestJS:
+# (Opcional) Seed de datos iniciales
+npx prisma db seed
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### 5. Ejecutar aplicación
+```bash
+# Desarrollo
+npm run start:dev
 
-## Support
+# Producción
+npm run start:prod
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+La aplicación estará disponible en: `http://localhost:3000`
 
-## Stay in touch
+## 📖 API Documentation
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+La documentación interactiva de la API está disponible en:
+```
+http://localhost:3000/api
+```
 
-## License
+## 🗄️ Estructura del Proyecto
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```
+src/
+├── core/                          # Core infrastructure
+│   └── prisma/
+│       ├── schema.prisma          # Database schema
+│       ├── prisma.service.ts      # Prisma service
+│       └── prisma.module.ts       # Prisma module
+├── shared/                        # Shared utilities
+│   └── types/
+│       ├── result.type.ts         # Railway Oriented Programming
+│       └── app-error.type.ts      # Error handling
+├── modules/                       # Business modules
+│   ├── products/                  # Products module
+│   │   ├── adapters/              # Infrastructure adapters
+│   │   ├── application/           # Use cases & services
+│   │   ├── dto/                   # Data Transfer Objects
+│   │   └── ports/                 # Interfaces (hexagonal)
+│   │       ├── in/                # Input ports (controllers)
+│   │       └── out/               # Output ports (repositories)
+│   └── customers/                 # Customers module
+│       ├── adapters/
+│       ├── application/
+│       ├── dto/
+│       └── ports/
+└── main.ts                       # Application entry point
+```
+
+## 🏗️ Arquitectura
+
+### Hexagonal Architecture (Ports & Adapters)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     Controllers (Input Ports)               │
+├─────────────────────────────────────────────────────────────┤
+│                     Use Cases (Business Logic)              │
+├─────────────────────────────────────────────────────────────┤
+│                  Repository Ports (Interfaces)              │
+├─────────────────────────────────────────────────────────────┤
+│               Repository Adapters (Prisma)                  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Railway Oriented Programming
+
+```typescript
+// Ejemplo de ROP
+return this.validateData(input)
+  .then(result => result.isSuccess() ? this.processData(result.value) : Promise.resolve(result))
+  .then(result => result.isSuccess() ? this.saveData(result.value) : Promise.resolve(result));
+```
+
+## 🧪 Testing
+
+```bash
+# Unit tests
+npm run test
+
+# Test coverage
+npm run test:cov
+
+# E2E tests  
+npm run test:e2e
+
+# Watch mode
+npm run test:watch
+```
+
+## 📊 Database Schema
+
+### Products
+```sql
+CREATE TABLE products (
+  id          TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
+  name        TEXT NOT NULL,
+  description TEXT NOT NULL,
+  price       DECIMAL(10,2) NOT NULL,
+  stock       INTEGER NOT NULL,
+  imageUrl    TEXT,
+  createdAt   TIMESTAMP DEFAULT NOW(),
+  updatedAt   TIMESTAMP DEFAULT NOW()
+);
+```
+
+### Customers
+```sql
+CREATE TABLE customers (
+  id        TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
+  email     TEXT UNIQUE NOT NULL,
+  firstName TEXT NOT NULL,
+  lastName  TEXT NOT NULL,
+  phone     TEXT,
+  createdAt TIMESTAMP DEFAULT NOW(),
+  updatedAt TIMESTAMP DEFAULT NOW()
+);
+```
+
+## 🔗 API Endpoints
+
+### Products
+- `GET /products` - Obtener todos los productos
+- `GET /products/:id` - Obtener producto por ID
+- `POST /products` - Crear producto
+- `PUT /products/:id` - Actualizar producto
+- `DELETE /products/:id` - Eliminar producto
+- `PUT /products/:id/stock` - Actualizar stock
+
+### Customers
+- `GET /customers` - Obtener todos los clientes
+- `GET /customers/:id` - Obtener cliente por ID
+- `GET /customers/by-email/:email` - Obtener cliente por email
+- `POST /customers` - Crear cliente
+- `PUT /customers/:id` - Actualizar cliente
+- `DELETE /customers/:id` - Eliminar cliente
+
+## 🚧 En Desarrollo
+
+### Orders & Payments
+- [ ] Creación de órdenes
+- [ ] Integración con Wompi API
+- [ ] Procesamiento de pagos
+- [ ] Gestión de entregas
+- [ ] Actualización automática de stock
+
+### Features Adicionales
+- [ ] Autenticación JWT
+- [ ] Rate limiting
+- [ ] Logs estructurados
+- [ ] Métricas y monitoring
+- [ ] Cache con Redis
+- [ ] Upload de imágenes
+
+## 🔒 Seguridad
+
+- Validación de entrada con class-validator
+- Sanitización de datos
+- Variables de entorno para secrets
+- Headers de seguridad (planeado)
+- HTTPS (planeado)
+
+## 📝 Scripts Disponibles
+
+```bash
+npm run build          # Compilar aplicación
+npm run start          # Iniciar aplicación
+npm run start:dev      # Modo desarrollo con watch
+npm run start:debug    # Modo debug
+npm run test           # Ejecutar tests
+npm run test:cov       # Coverage de tests
+npm run lint           # Linting con ESLint
+npm run format         # Formatear código con Prettier
+```
+
+## 🔧 Comandos de Base de Datos
+
+```bash
+# Generar cliente Prisma
+npx prisma generate
+
+# Crear migración
+npx prisma migrate dev --name migration-name
+
+# Aplicar migraciones
+npx prisma migrate deploy
+
+# Reset de base de datos
+npx prisma migrate reset
+
+# Visualizar base de datos
+npx prisma studio
+```
+
+## 🤝 Contribuir
+
+1. Fork el proyecto
+2. Crear feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit cambios (`git commit -m 'Add amazing feature'`)
+4. Push a la branch (`git push origin feature/amazing-feature`)
+5. Abrir Pull Request
+
+## 📄 Licencia
+
+Este proyecto es privado y no tiene licencia pública.
+
+## 👨‍💻 Autor
+
+Desarrollado como prueba técnica para proceso de selección.
+
+---
+
+⚡ **Powered by NestJS + Prisma + PostgreSQL**
